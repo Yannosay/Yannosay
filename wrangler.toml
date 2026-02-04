@@ -1,0 +1,14 @@
+name = "yannosay"
+type = "javascript"
+
+account_id = "aa2eb21dfba8bbec0653de2837566e92a4f32"
+zone_id = "67df38977545245d79db9d9f78f23845"
+
+# Workers.dev (dev) deployment
+workers_dev = true
+
+# Custom domain deployment
+route = "https://yannosay.com/*"
+
+[build.upload]
+dir = "."  # deploy everything in the folder
