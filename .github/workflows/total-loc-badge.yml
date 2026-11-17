@@ -1,0 +1,23 @@
+name: Total Public LOC Badge
+on:
+  schedule: [{cron: '0 0 * * *'}]   # daily
+  workflow_dispatch:
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute total LOC
+        id: loc
+        run: |
+          total=0
+          for repo in $(gh repo list ${{ github.repository_owner }} --public --limit 1000 --json name -q '.[].name'); do
+            loc=$(curl -s "https://loctopus.creeperkatze.dev/github/${{ github.repository_owner }}/$repo" | jq '.loc')
+            total=$((total + loc))
+          done
+          echo "total=$total" >> $GITHUB_OUTPUT
+      - name: Update badge
+        run: |
+          curl -X PUT "https://api.github.com/repos/${{ github.repository }}/contents/badge.json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d "{\"message\":\"Update LOC badge\",\"content\":\"$(echo -n '{\"schemaVersion\":1,\"label\":\"total lines\",\"message\":\"'${{ steps.loc.outputs.total }}'\",\"color\":\"blue\"}' | base64 -w0)\"}"
